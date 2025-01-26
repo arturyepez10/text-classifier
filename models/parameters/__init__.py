@@ -11,7 +11,9 @@ class Parameters:
       models=weak_learner["models"],
       classifier=weak_learner["classifier"]
     )
-    self.meta_learner = MetaLearner(**meta_learner)
+    self.meta_learner = MetaLearner(
+      classifier=meta_learner["classifier"]
+    )
     self.dataset = Dataset(
       train=dataset["train"],
       test=dataset["test"],
