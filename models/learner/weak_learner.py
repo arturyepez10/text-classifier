@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
+from os import path, mkdir
 import pickle
 
 from models.learner import Learner
@@ -27,7 +28,25 @@ class WeakLearner(Learner):
 
     return self.classifier.predict(embeddings)
   
-  # TODO: Define how we want to store the model with pickle 
-  # def save(self, filename = ""):
-  #   with open(filename, 'wb') as file:
-  #     pickle.dump(self, file)
+  def save(self, name = ""):
+    """Saves the model as binaries using pickle native library so the model
+    trained can be used later on without the need of re-training it. 
+    """
+    filename = name
+    
+    if not filename:
+      filename = "meta-learner.clf"
+
+    if not path.exists("out/"):
+      mkdir("out/")
+
+    # The 'out/' folder will be the default folder to save the models
+    with open("out/" + filename, "wb") as file:
+      pickle.dump(self, file)
+  
+  @staticmethod
+  def load(filename: str) -> 'WeakLearner':
+    """Loads a model previously trained from a file using pickle native library
+    """
+    with open("out/" + filename, "rb") as file:
+      return pickle.load(file)

@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 
+from os import path, mkdir
+import pickle
+
 from models.learner import Learner
 from models.parameters.learner import Classifier
 from models.learner.weak_learner import WeakLearner
@@ -70,3 +73,27 @@ class MetaLearner(Learner):
 
       self.predictions_per_batch = np.append(self.predictions_per_batch, self.classifier.predict(weak_learners_predictions))
       epoch += 1
+
+
+  def save(self, name = ""):
+    """Saves the model as binaries using pickle native library so the model
+    trained can be used later on without the need of re-training it. 
+    """
+    filename = name
+    
+    if not filename:
+      filename = "meta-learner.clf"
+
+    if not path.exists("out/"):
+      mkdir("out/")
+
+    # The 'out/' folder will be the default folder to save the models
+    with open("out/" + filename, "wb") as file:
+      pickle.dump(self, file)
+  
+  @staticmethod
+  def load(filename: str) -> 'MetaLearner':
+    """Loads a model previously trained from a file using pickle native library
+    """
+    with open("out/" + filename, "rb") as file:
+      return pickle.load(file)
