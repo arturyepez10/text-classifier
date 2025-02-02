@@ -1,0 +1,35 @@
+{
+  "weak_learner": {
+    "models": [
+      "roberta-large-nli-stsb-mean-tokens",
+      "distilbert-base-nli-mean-tokens",
+      "bert-large-nli-stsb-mean-tokens"
+    ],
+    "classifier": {
+      "hidden_layer_sizes": [500, 300],
+      "activation": "relu",
+      "solver": "adam",
+      "alpha": 0.0001,
+      "random_state": 1,
+      "early_stopping": true
+    }
+  },
+  "meta_learner": {
+    "classifier": {
+      "hidden_layer_sizes": [11],
+      "activation": "relu",
+      "solver": "adam",
+      "alpha": 0.0001,
+      "random_state": 1,
+      "early_stopping": false
+    }
+  },
+  "dataset": {
+   "train": "data/example_2/2018-E-c-En-train.txt",
+   "test": "data/example_2/2018-E-c-En-test-gold.txt",
+   "file_type": "csv",
+   "separator": "\t",
+   "text_column": "Tweet",
+   "label_columns": ["anger", "anticipation", "disgust", "fear", "joy", "love", "optimism", "pessimism", "sadness", "surprise", "trust"]
+  }
+}
