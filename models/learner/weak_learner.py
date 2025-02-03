@@ -35,7 +35,7 @@ class WeakLearner(Learner):
     filename = name
     
     if not filename:
-      filename = "meta-learner.clf"
+      filename = self.model_name + ".clf"
 
     if not path.exists("out/"):
       mkdir("out/")
