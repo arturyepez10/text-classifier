@@ -16,3 +16,4 @@ venv.bak/
 # Files generated or associated with the execution of the code
 out/
 data/
+parameters.json

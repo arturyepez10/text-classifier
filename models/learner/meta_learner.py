@@ -18,7 +18,8 @@ class MetaLearner(Learner):
 
     self.weak_learners: list[WeakLearner] = []
     self.embeddings_processed = np.array([])
-    self.predictions_per_batch = np.array([])
+
+    self.predictions_per_epoch = np.array([])
 
   def add_weak_learner(self, weak_learner: WeakLearner):
     self.weak_learners.append(weak_learner)
@@ -45,15 +46,23 @@ class MetaLearner(Learner):
     """
     embeddings = [weak_learner.embeddings for weak_learner in self.weak_learners]
 
-    # TODO: should it return an array with a numpy array? or should it be returning that numpy array?
-    return [
+    # TODO: this commented code is a literal way to do it extracted from original thesis
+    # return [
+    #   np.concatenate(
+    #     [
+    #     embeddings[j][i] for j in range(len(embeddings))
+    #     ], 
+    #     axis=0
+    #   ) for i in range(len(embeddings[0]))
+    # ]
+    return np.array([
       np.concatenate(
         [
         embeddings[j][i] for j in range(len(embeddings))
         ], 
         axis=0
       ) for i in range(len(embeddings[0]))
-    ]
+    ])
   
   # TODO: this whole funciton should be optimize to obtain it in a better way
   def train_model(self, dataframe: pd.DataFrame):
@@ -72,7 +81,7 @@ class MetaLearner(Learner):
         if mini_batch_index >= train_samples:
           break
 
-      self.predictions_per_batch = np.append(self.predictions_per_batch, self.classifier.predict(self.embeddings_processed))
+      self.predictions_per_epoch = np.append(self.predictions_per_epoch, self.classifier.predict(self.embeddings_processed))
       epoch += 1
 
 
