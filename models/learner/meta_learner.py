@@ -10,14 +10,14 @@ from models.learner.weak_learner import WeakLearner
 
 # TODO: Add better support for intelligent data catching / logs in training process to create the graphics
 class MetaLearner(Learner):
-  epochs = 20
+  epochs = 2
   batch_size = 128
 
   def __init__(self, classifier_params: Classifier):
     super().__init__(classifier_params)
 
     self.weak_learners: list[WeakLearner] = []
-    self.embeddings_trained = np.array([])
+    self.embeddings_processed = np.array([])
     self.predictions_per_batch = np.array([])
 
   def add_weak_learner(self, weak_learner: WeakLearner):
@@ -45,6 +45,7 @@ class MetaLearner(Learner):
     """
     embeddings = [weak_learner.embeddings for weak_learner in self.weak_learners]
 
+    # TODO: should it return an array with a numpy array? or should it be returning that numpy array?
     return [
       np.concatenate(
         [
@@ -60,18 +61,18 @@ class MetaLearner(Learner):
 
     classes_qty = list(range(len(dataframe["target"][0]))) # TODO: this has to be a list of number from 0 to the max number of classes (-1). OPTIMIZE
 
-    weak_learners_predictions = self._concatenate_embeddings()
-    train_samples = len(weak_learners_predictions)
+    self.embeddings_processed = self._concatenate_embeddings()
+    train_samples = len(self.embeddings_processed)
     while epoch < self.epochs:
       mini_batch_index = 0
       while True:
-        self.classifier.partial_fit(weak_learners_predictions, dataframe["target"].to_list(), classes=classes_qty)
+        self.classifier.partial_fit(self.embeddings_processed, dataframe["target"].to_list(), classes=classes_qty)
         mini_batch_index += self.batch_size
 
         if mini_batch_index >= train_samples:
           break
 
-      self.predictions_per_batch = np.append(self.predictions_per_batch, self.classifier.predict(weak_learners_predictions))
+      self.predictions_per_batch = np.append(self.predictions_per_batch, self.classifier.predict(self.embeddings_processed))
       epoch += 1
 
 

@@ -1,5 +1,6 @@
 import argparse
 from training import train_model
+from loading import load_model
 
 def main(parser: argparse.ArgumentParser):
   args = parser.parse_args()
@@ -10,6 +11,9 @@ def main(parser: argparse.ArgumentParser):
 
   if args.train:
     train_model(args.params_path, args.verbose)
+
+  if args.load:
+    load_model(args.load, args.verbose)
 
 
 if __name__ == "__main__":
@@ -26,7 +30,7 @@ if __name__ == "__main__":
     "-l",
     "--load",
     help="Load the model from previous training",
-    action='store_true'
+    action='store'
   )
 
   parser.add_argument(

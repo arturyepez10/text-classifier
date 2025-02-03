@@ -3,8 +3,6 @@ from models.dataset import Dataset
 from models.learner.weak_learner import WeakLearner
 from models.learner.meta_learner import MetaLearner
 
-import numpy as np
-
 def train_model(path: str, verbose: bool = False):
   # Load the parameters from the file path passed as argument to the execution
   params = Parameters.from_json(path)
@@ -75,6 +73,12 @@ def train_model(path: str, verbose: bool = False):
   meta_learner.save()
 
   if verbose:
+    print("\n[INFO] Meta learner information: ")
+    print("\tEpochs used: ", meta_learner.epochs)
+    print("\tBatch size: ", meta_learner.batch_size)
+    print("\tProcessed embeddings shape: ", meta_learner.embeddings_processed[0].shape)
+    print()
+
     print("[INFO] Training process on the meta learner finished...")
     print("[INFO] Meta learner saved...")
     print("[INFO] Training process finished...")
