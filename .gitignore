@@ -12,3 +12,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Files generated or associated with the execution of the code
+out/
+data/

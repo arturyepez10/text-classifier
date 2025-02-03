@@ -32,7 +32,6 @@ def train_model(path: str, verbose: bool = False):
     print("\tHead: \n", dataset.dataframe_processed.head(), "\n")
 
   # We create the weak learner with the parameters loaded
-  if verbose:
     print("[INFO] Creating the weak learners...")
 
   weak_learners: list[WeakLearner] = []
@@ -51,9 +50,10 @@ def train_model(path: str, verbose: bool = False):
   # Train the weak learners
   for weak_learner in weak_learners:
     weak_learner.train_transformer(dataset.dataframe_processed)
+    weak_learner.save()
 
     if verbose:
-      print("\tTraining completed with model: ", weak_learner.model_name)
+      print("\tTraining completed and saved with model: ", weak_learner.model_name)
 
   if verbose:
     print("\n[INFO] Training process on the weak learners finished...\n")
@@ -68,14 +68,16 @@ def train_model(path: str, verbose: bool = False):
   if verbose:
     print("[INFO] Meta learner created with ", len(meta_learner.weak_learners), " weak learners \n")
 
-  # Train the meta learner
-  if verbose:
+    # Train the meta learner
     print("[INFO] Training the meta learner...")
 
   meta_learner.train_model(dataset.dataframe_processed)
+  meta_learner.save()
 
   if verbose:
     print("[INFO] Training process on the meta learner finished...")
+    print("[INFO] Meta learner saved...")
     print("[INFO] Training process finished...")
 
+  return meta_learner
   
