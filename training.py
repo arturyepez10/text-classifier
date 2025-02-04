@@ -76,7 +76,7 @@ def train_model(path: str, verbose: bool = False):
     print("\n[INFO] Meta learner information: ")
     print("\tEpochs used: ", meta_learner.epochs)
     print("\tBatch size: ", meta_learner.batch_size)
-    print("\tProcessed embeddings shape: ", meta_learner.embeddings_processed.shape)
+    print("\tProcessed embeddings shape: ", meta_learner.predictions_processed.shape)
     print()
 
     print("[INFO] Training process on the meta learner finished...")
