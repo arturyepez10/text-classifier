@@ -1,6 +1,9 @@
 import argparse
 from training import train_model
 from loading import load_model
+from predictions import predict_file
+
+from models.learner.meta_learner import MetaLearner
 
 def main(parser: argparse.ArgumentParser):
   args = parser.parse_args()
@@ -9,12 +12,20 @@ def main(parser: argparse.ArgumentParser):
     print("[ERROR] You can't load the model and train it at the same time")
     return
 
+  meta_learner : MetaLearner = None
+
   if args.train:
-    train_model(args.params_path, args.verbose)
+    meta_learner = train_model(args.params_path, args.verbose)
 
   if args.load:
-    load_model(args.load, args.verbose)
+    meta_learner = load_model(args.load, args.verbose)
 
+  if args.predict and not meta_learner:
+    print("[ERROR] You need to train or load the model to predict")
+    return
+
+  if args.predict:
+    predict_file(args.predict, meta_learner, args.verbose)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description="Text Classifier for Emotion Detection | SENTI-Lib")
