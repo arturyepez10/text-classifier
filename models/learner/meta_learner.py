@@ -90,6 +90,15 @@ class MetaLearner(Learner):
     predictions_concatenated = self.concatenate_predictions(predictions)
 
     return self.classifier.predict(predictions_concatenated)
+  
+  def full_predict(self, data: list):
+    """Given a list of data, it predicts the output using the MLP classifier trained
+    beforehand.
+    """
+    predictions = [weak_learner.predict(data) for weak_learner in self.weak_learners]
+    predictions_concatenated = self.concatenate_predictions(predictions)
+
+    return self.classifier.predict(predictions_concatenated)
 
 
   def save(self, name = ""):
