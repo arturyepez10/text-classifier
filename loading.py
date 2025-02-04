@@ -1,4 +1,3 @@
-from models.learner.weak_learner import WeakLearner
 from models.learner.meta_learner import MetaLearner
 
 def load_model(filename: str, verbose: bool = False):
