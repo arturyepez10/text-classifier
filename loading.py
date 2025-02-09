@@ -17,7 +17,7 @@ def load_model(filename: str, verbose: bool = False):
       print()
 
     print("\tEmbeddings shape: ", meta_learner.predictions_processed.shape)
-    print("\tPredictions per epoch shape: ", meta_learner.predictions_per_epoch.shape)
+    print("\tPredictions per epoch shape: ", len(meta_learner.predictions_per_epoch))
 
     print("\n[INFO] Meta learner loaded...")
     print("[INFO] Loading process finished...")

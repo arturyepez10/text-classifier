@@ -19,7 +19,7 @@ class MetaLearner(Learner):
     self.weak_learners: list[WeakLearner] = []
 
     self.predictions_processed = np.array([])
-    self.predictions_per_epoch = np.array([])
+    self.predictions_per_epoch = []
 
   def add_weak_learner(self, weak_learner: WeakLearner):
     self.weak_learners.append(weak_learner)
@@ -80,7 +80,7 @@ class MetaLearner(Learner):
         if mini_batch_index >= train_samples:
           break
 
-      self.predictions_per_epoch = np.append(self.predictions_per_epoch, self.classifier.predict(self.predictions_processed))
+      self.predictions_per_epoch.append(self.classifier.predict(self.predictions_processed))
       epoch += 1
 
   def predict(self, predictions: list):
