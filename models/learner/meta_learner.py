@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.neural_network import MLPClassifier
 
 from os import path, mkdir
 import pickle
@@ -108,7 +109,7 @@ class MetaLearner(Learner):
     filename = name
     
     if not filename:
-      filename = "meta-learner.clf"
+      filename = "meta-learner.lnr"
 
     if not path.exists("out/"):
       mkdir("out/")
@@ -116,10 +117,33 @@ class MetaLearner(Learner):
     # The 'out/' folder will be the default folder to save the models
     with open("out/" + filename, "wb") as file:
       pickle.dump(self, file)
+
+  def save_classifier(self, name = ""):
+    """Saves the model MLP classifier as binaries using pickle native library so the model
+    trained can be used later on without the need of re-training it. 
+    """
+    filename = name
+    
+    if not filename:
+      filename = "meta-learner.clf"
+
+    if not path.exists("out/"):
+      mkdir("out/")
+
+    # The 'out/' folder will be the default folder to save the models
+    with open("out/" + filename, "wb") as file:
+      pickle.dump(self.classifier, file)
   
   @staticmethod
   def load(filename: str) -> 'MetaLearner':
     """Loads a model previously trained from a file using pickle native library
+    """
+    with open("out/" + filename, "rb") as file:
+      return pickle.load(file)
+    
+  @staticmethod
+  def load_classifier(filename: str) -> 'MLPClassifier':
+    """Loads a model MLP classifier previously trained from a file using pickle native library
     """
     with open("out/" + filename, "rb") as file:
       return pickle.load(file)
