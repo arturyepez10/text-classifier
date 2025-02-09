@@ -3,10 +3,7 @@ from models.dataset import Dataset
 from models.learner.weak_learner import WeakLearner
 from models.learner.meta_learner import MetaLearner
 
-def train_model(path: str, verbose: bool = False):
-  # Load the parameters from the file path passed as argument to the execution
-  params = Parameters.from_json(path)
-
+def train_model(params: Parameters, verbose: bool = False):
   if verbose:
     print("[INFO] This were the params loaded from the path provided: \n", params, "\n")
 

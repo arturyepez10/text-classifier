@@ -18,10 +18,7 @@ def score_training(predictions: np.array, targets: np.array):
   # jaccard = 
   return list(map(lambda pred: jaccard_score(targets, pred, average='samples', zero_division=0), predictions))
 
-def score_model(params_path: str, meta_learner: MetaLearner, verbose: bool = False):
-  # Load the parameters from the file path passed as argument to the execution
-  params = Parameters.from_json(params_path)
-
+def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = False):
   if verbose:
     print("[INFO] Scoring Meta Learner model using the model data provided...")
 
