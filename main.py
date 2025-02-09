@@ -30,7 +30,7 @@ def main(parser: argparse.ArgumentParser):
     return
 
   if args.predict:
-    predict_file(args.predict, meta_learner, args.verbose)
+    predict_file(params, args.predict, meta_learner, args.verbose)
 
   if args.score:
     score_model(params, meta_learner, args.verbose)

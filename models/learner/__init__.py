@@ -3,6 +3,8 @@ from sklearn.neural_network import MLPClassifier
 from models.parameters.classifier import Classifier
 
 class Learner:
+  verbose = False
+  
   def __init__(self, params: Classifier):
     self.classifier = MLPClassifier(
       hidden_layer_sizes=params.hidden_layer_sizes,
