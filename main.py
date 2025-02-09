@@ -2,6 +2,7 @@ import argparse
 from training import train_model
 from loading import load_model
 from predictions import predict_file
+from metrics import score_model
 
 from models.learner.meta_learner import MetaLearner
 
@@ -20,12 +21,15 @@ def main(parser: argparse.ArgumentParser):
   if args.load:
     meta_learner = load_model(args.load, args.verbose)
 
-  if args.predict and not meta_learner:
-    print("[ERROR] You need to train or load the model to predict")
+  if (args.predict or args.score) and not meta_learner:
+    print("[ERROR] You need to train or load the model first")
     return
 
   if args.predict:
     predict_file(args.predict, meta_learner, args.verbose)
+
+  if args.score:
+    score_model(args.params_path, meta_learner, args.verbose)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description="Text Classifier for Emotion Detection | SENTI-Lib")
@@ -64,6 +68,13 @@ if __name__ == "__main__":
     help="Path to the parameters file to train the classifier",
     action='store',
     default="parameters.default.json"
+  )
+
+  parser.add_argument(
+    "-s",
+    "--score",
+    help="After a model is loaded, it obtain several metrics from the model",
+    action='store_true'
   )
 
   main(parser)
