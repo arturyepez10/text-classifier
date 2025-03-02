@@ -1,21 +1,52 @@
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import f1_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import jaccard_score
-from sklearn.metrics import multilabel_confusion_matrix
-from sklearn.model_selection import learning_curve
+from sklearn.metrics import jaccard_score, recall_score, precision_score, f1_score
+from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix, ConfusionMatrixDisplay, classification_report
+import matplotlib.pyplot as plt
 
 import numpy as np
 
 from models.dataset import Dataset
 from models.learner.meta_learner import MetaLearner
 from models.parameters import Parameters
+from sklearn.metrics import recall_score
 
+def plot_confusion_matrix(
+  confusion_matrix: np.ndarray,
+  labels: np.ndarray
+):
+  # We will assume that there are 11 labels, perhaps update in the future to be dynamic
+  rows = 3
+  columns = 4
+
+  fig, axes = plt.subplots(rows, columns, figsize=(25, 11))
+  axes = axes.ravel()
+
+  print("shape of the confusion matrix: ", confusion_matrix.shape)
+  print("shape of the labels: ", labels.shape)
+
+  for index in range(11):
+    print("index: ", index)
+    disp = ConfusionMatrixDisplay(confusion_matrix[index], display_labels=[0, 1])
+    disp.plot(ax=axes[index], values_format='.4g')
+    disp.ax_.set_title(f"Class: {labels[index]}")
+
+    # If the index is the last one, we remove the X axis label
+    if index < len(axes) - columns:
+      disp.ax_.set_xlabel('')
+
+    # If the index is not divisible by the number of columns, we remove the Y axis label
+    if index % columns != 0:
+      disp.ax_.set_ylabel('')
+
+    disp.im_.colorbar.remove()
+
+  plt.subplots_adjust(wspace=0.10, hspace=0.1)
+  fig.colorbar(disp.im_, ax=axes)
+  plt.show()
 
 def score_training(predictions: np.array, targets: np.array):
-
-  # jaccard = 
+  """Takes the predictions per epoch stored when training the Meta-Learner and creates the curve of
+  Jaccard score for the training and test data capture while training the model.
+  """
   return list(map(lambda pred: jaccard_score(targets, pred, average='samples', zero_division=0), predictions))
 
 def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = False):
@@ -54,7 +85,7 @@ def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = F
 
   # Generate the learning curve for the Training and Test set
   jaccard_training = score_training(meta_learner.predictions_per_epoch, dataset_training.dataframe_processed["target"].to_list())
-  # TODO: add support for this jaccard score accross the epochs with test data
+  # TODO: add support for this jacard score accross the epochs with test data
   # jaccard_test = score_training(meta_learner.predictions_per_epoch, dataset_test.dataframe_processed["target"].to_list())
 
   if verbose:
@@ -62,80 +93,24 @@ def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = F
     # print("[INFO] Jaccard score for the test data: ", jaccard_test)
 
   # Generating several different metrics for the model
-  # predictions_test = meta_learner.generate_embeddings(dataset_test.dataframe_processed["text"].to_list())
-  # predictions_test_processed = meta_learner.concatenate_predictions
   predictions = meta_learner.full_predict(dataset_test.dataframe_processed["text"].to_list())
 
-  # PRECISION 
-  precision_macro = precision_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average='macro'
-  )
-  precision_micro = precision_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average='micro'
-  ) 
+  # TODO: print graphics (plot_confusion_matrix function)
+  # Confusion matrix
+  # print(params.dataset.label_column.shape)
+  # confusion_matrices = multilabel_confusion_matrix(
+  #   dataset_test.dataframe_processed["target"].to_list(),
+  #   predictions
+  # )
+  # plot_confusion_matrix(confusion_matrices, params.dataset.label_column)
 
-  # RECALL
-  recall_macro = recall_score(
+  full_report = classification_report(
     dataset_test.dataframe_processed["target"].to_list(),
     predictions,
-    average='macro'
-  )
-  recall_micro = recall_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average='micro'
-  )
-
-  # F1 SCORE
-  f1_macro = f1_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average='macro'
-  )
-  f1_micro = f1_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average='micro'
-  )
-
-  # JACCARD
-  jaccard_avg = jaccard_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average='samples',
-    zero_division=0
-  )
-  jaccard = jaccard_score(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions,
-    average=None,
+    target_names=params.dataset.label_column,
     zero_division=0
   )
 
   if verbose:
-    print("[INFO] Precision score for the test data: ")
-    print("\tMacro: ", precision_macro)
-    print("\tMicro: ", precision_micro)
-
-    print("[INFO] Recall score for the test data: ")
-    print("\tMacro: ", recall_macro)
-    print("\tMicro: ", recall_micro)
-
-    print("[INFO] F1 score for the test data: ")
-    print("\tMacro: ", f1_macro)
-    print("\tMicro: ", f1_micro)
-
-    print("[INFO] Jaccard score for the test data: ")
-    print("\tAverage: ", jaccard_avg)
-    # print("\tIndividual: ", jaccard)
-
-  # Confusion matrix
-
-  confusion_matrix = multilabel_confusion_matrix(
-    dataset_test.dataframe_processed["target"].to_list(),
-    predictions
-  )
+    print("[INFO] Classification report of the dataset: ")
+    print(full_report)
