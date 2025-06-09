@@ -1,7 +1,4 @@
-from sklearn.metrics import jaccard_score, recall_score, precision_score, f1_score
-from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix, ConfusionMatrixDisplay, classification_report
-import matplotlib.pyplot as plt
-
+from sklearn.metrics import jaccard_score, multilabel_confusion_matrix, classification_report
 import numpy as np
 
 from models.dataset import Dataset
@@ -9,39 +6,21 @@ from models.learner.meta_learner import MetaLearner
 from models.parameters import Parameters
 from sklearn.metrics import recall_score
 
-def plot_confusion_matrix(
+def show_confusion_matrix(
   confusion_matrix: np.ndarray,
   labels: np.ndarray
 ):
-  # We will assume that there are 11 labels, perhaps update in the future to be dynamic
-  rows = 3
-  columns = 4
+  tn = confusion_matrix[:, 0, 0]
+  tp = confusion_matrix[:, 1, 1]
+  fn = confusion_matrix[:, 1, 0]
+  fp = confusion_matrix[:, 0, 1]
 
-  fig, axes = plt.subplots(rows, columns, figsize=(25, 11))
-  axes = axes.ravel()
-
-  print("shape of the confusion matrix: ", confusion_matrix.shape)
-  print("shape of the labels: ", labels.shape)
-
-  for index in range(11):
-    print("index: ", index)
-    disp = ConfusionMatrixDisplay(confusion_matrix[index], display_labels=[0, 1])
-    disp.plot(ax=axes[index], values_format='.4g')
-    disp.ax_.set_title(f"Class: {labels[index]}")
-
-    # If the index is the last one, we remove the X axis label
-    if index < len(axes) - columns:
-      disp.ax_.set_xlabel('')
-
-    # If the index is not divisible by the number of columns, we remove the Y axis label
-    if index % columns != 0:
-      disp.ax_.set_ylabel('')
-
-    disp.im_.colorbar.remove()
-
-  plt.subplots_adjust(wspace=0.10, hspace=0.1)
-  fig.colorbar(disp.im_, ax=axes)
-  plt.show()
+  print()
+  print(f"{'Label:':<15}TN \tTP \tFN \tFP")
+  print(f"{'':<15}\t----\t----\t----\t----")
+  for i, label in enumerate(labels):
+    print(f"{label:<15}{tn[i]:>4} \t{tp[i]:>4} \t{fn[i]:>4} \t{fp[i]:>4}")
+    print()
 
 def score_training(predictions: np.array, targets: np.array):
   """Takes the predictions per epoch stored when training the Meta-Learner and creates the curve of
@@ -95,15 +74,11 @@ def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = F
   # Generating several different metrics for the model
   predictions = meta_learner.full_predict(dataset_test.dataframe_processed["text"].to_list())
 
-  # TODO: print graphics (plot_confusion_matrix function)
   # Confusion matrix
-  # print(params.dataset.label_column.shape)
-  # confusion_matrices = multilabel_confusion_matrix(
-  #   dataset_test.dataframe_processed["target"].to_list(),
-  #   predictions
-  # )
-  # plot_confusion_matrix(confusion_matrices, params.dataset.label_column)
-
+  confusion_matrices = multilabel_confusion_matrix(
+    dataset_test.dataframe_processed["target"].to_list(),
+    predictions
+  )
   full_report = classification_report(
     dataset_test.dataframe_processed["target"].to_list(),
     predictions,
@@ -114,3 +89,7 @@ def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = F
   if verbose:
     print("[INFO] Classification report of the dataset: ")
     print(full_report)
+
+  print("[INFO] Confusion matrix of the dataset: ")
+  show_confusion_matrix(confusion_matrices, params.dataset.label_column)
+    
