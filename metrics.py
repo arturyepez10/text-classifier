@@ -1,4 +1,4 @@
-from sklearn.metrics import jaccard_score, multilabel_confusion_matrix, classification_report
+from sklearn.metrics import jaccard_score, multilabel_confusion_matrix, classification_report, f1_score
 import numpy as np
 
 from models.dataset import Dataset
@@ -79,6 +79,8 @@ def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = F
     dataset_test.dataframe_processed["target"].to_list(),
     predictions
   )
+
+  # Classification report for several different metrics
   full_report = classification_report(
     dataset_test.dataframe_processed["target"].to_list(),
     predictions,
@@ -86,10 +88,37 @@ def score_model(params: Parameters, meta_learner: MetaLearner, verbose: bool = F
     zero_division=0
   )
 
-  if verbose:
-    print("[INFO] Classification report of the dataset: ")
-    print(full_report)
+  print("[INFO] Classification report of the dataset: ")
+  print(full_report)
 
   print("[INFO] Confusion matrix of the dataset: ")
   show_confusion_matrix(confusion_matrices, params.dataset.label_column)
-    
+
+  if verbose:
+    print("[INFO] We calculate some metrics for the Weak Learners...")
+
+  # Calculate f1-score micro and macro for all weak learners
+  for weak_learner in meta_learner.weak_learners:
+    print(f"[INFO] Weak learner: {weak_learner.model_name}")
+
+    weak_embeddings = weak_learner.generate_embeddings(
+      dataset_test.dataframe_processed["text"].to_list()
+    )
+    weak_predictions = weak_learner.classifier.predict(weak_embeddings)
+
+    # # Calculate recall
+    f1micro = f1_score(
+      dataset_test.dataframe_processed["target"].to_list(),
+      weak_predictions,
+      average='micro',
+      zero_division=0
+    )
+    f1macro = f1_score(
+      dataset_test.dataframe_processed["target"].to_list(),
+      weak_predictions,
+      average='macro',
+      zero_division=0
+    )
+
+    print(f"\tF1 Micro: {f1micro}")
+    print(f"\tF1 Macro: {f1macro}")
